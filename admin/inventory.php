@@ -214,7 +214,7 @@ $categoryNum = mysqli_num_rows($categoryResult);
                                             <th>Total Quantity</th>
                                             <th>Price</th>
                                             <th>Status</th>
-                                            <th>Lead</th>
+                                            <th>Lease</th>
                                             <th></th>
                                             <th></th>
                                         </tr>

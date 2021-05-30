@@ -95,7 +95,7 @@ $roleNum = mysqli_num_rows($roleResult);
                         <!--<div class="logo-img">
                             <img src="" class="header-brand-img" alt="lavalite">
                         </div>-->
-                        <span class="text">ReadToWed</span>
+                        <span class="text">ReadyToWed</span>
                     </a>
                     <button type="button" class="nav-toggle"><i data-toggle="expanded"
                             class="ik ik-toggle-right toggle-icon"></i></button>
@@ -142,7 +142,9 @@ $roleNum = mysqli_num_rows($roleResult);
                             </div>
 
                             <div class="col col-sm-6">
-                            <p style="text-align: center;">   <?php echo $getCustomerDetails['firstname'].' '.$getCustomerDetails['othername'].' '.$getCustomerDetails['lastname']."'s Paid not paid for bookings"; ?></p>
+                            <p style="text-align: center;">  
+                            <?php echo $getCustomerDetails['firstname'].' '.$getCustomerDetails['othername'].' 
+                                  '.$getCustomerDetails['lastname']."'s Installment payment - Wedding dress"; ?></p>
 
                                 <div class="card-search with-adv-search dropdown">
                                     <?php
@@ -180,7 +182,7 @@ $roleNum = mysqli_num_rows($roleResult);
                                                     echo "<tr>
                                                     <td> ".$row['type']." </td>
                                                     <td> ".$row['size']." </td>
-                                                    <td> ZMK ".($row['totalBill'] - $row['amountPaid'])." </td>
+                                                    <td> ZMK ".number_format(($row['totalBill'] - $row['amountPaid']))." </td>
                                                     <td> ".$row['dateOfUse']." </td>
                                                     <td> <a href='settle_bill.php?ptID=".$row['ptID']."&du=".$row['dateOfUse']."&dr=".$row['dateOfReturn']."&b=".($row['totalBill'] - $row['amountPaid'])."&ac=".$row['totalBill']."&cusID=".$getCustomerDetails['customerID']."'> 
                                                     <button class='btn btn-primary'> Settle Bill </button> </a> </td>
@@ -205,17 +207,14 @@ $roleNum = mysqli_num_rows($roleResult);
                     <div class="card">
                         <div class="card-header row">
                             <div class="col col-sm-3">
-                                <div class="card-options d-inline-block">
-                                    <a data-toggle="modal" style="cursor: pointer;" data-target="#fullwindowModal"><i
-                                            class="ik ik-plus"></i></a>
-                                    <a href="customers.php" style="cursor: pointer;"><i class="ik ik-rotate-cw"></i></a>
-                                </div>
+                             
                             </div>
                             <div class="col col-sm-6">
                                 <div class="card-search with-adv-search dropdown">   
                                  <p style="text-align: center;">  
-                                  <?php echo $getCustomerDetails['firstname'].' '.$getCustomerDetails['othername'].' 
-                                  '.$getCustomerDetails['lastname']."'s Paid not used wedding dress"; ?></p>
+                                 <?php echo $getCustomerDetails['firstname'].'
+                                  '.$getCustomerDetails['othername'].' '.$getCustomerDetails['lastname']."'s Paid for bookings"; ?></p>
+
 
                                     <?php
                                     $getPaid  = getAllPaidBooking($database, $getPassedID);
@@ -235,6 +234,7 @@ $roleNum = mysqli_num_rows($roleResult);
                                         
                                         <th>Wedding Type</th>
                                         <th>Size</th>
+                                        <th>Quantity</th>
                                         <th>Balance</th>
                                         <th>Date of Use</th>
                                         <th>Contract Signed</th>
@@ -248,15 +248,16 @@ $roleNum = mysqli_num_rows($roleResult);
                                                     echo "<tr>
                                                     <td> ".$row['type']." </td>
                                                     <td> ".$row['size']." </td>
-                                                    <td> ZMK ".($row['totalBill'] - $row['amountPaid'])." </td>
+                                                    <td> ".$row['quantity']." </td>
+                                                    <td> ZMK ".number_format(($row['totalBill'] - $row['amountPaid']))." </td>
                                                     <td> ".$row['dateOfUse']." </td>
                                                     ";
 
                                                     if(checkContract($database, $getCustomerDetails['customerID'], $row['ptID'])){
-                                                        echo "<td> <a href='contract.php?cusID=". $getCustomerDetails['customerID']."&ptID=".$row['ptID']."&signed=true'> <button>View Signed Contract</button> </a> </td>
+                                                        echo "<td> <a href='contract.php?cusID=". $getCustomerDetails['customerID']."&ptID=".$row['ptID']."&signed=true'> <button class='btn btn-primary'>View Signed Contract</button> </a> </td>
                                                         <tr>";
                                                     }else{
-                                                        echo "<td> <a href='contract.php?cusID=". $getCustomerDetails['customerID']."&ptID=".$row['ptID']."&signed=false'> <button>Sign Contract</button> </a> </td>
+                                                        echo "<td> <a href='contract.php?cusID=". $getCustomerDetails['customerID']."&ptID=".$row['ptID']."&signed=false'> <button  class='btn btn-primary'>Sign Contract</button> </a> </td>
                                                         <tr>";
                                                     }
 
@@ -281,17 +282,13 @@ $roleNum = mysqli_num_rows($roleResult);
                     <div class="card">
                         <div class="card-header row">
                             <div class="col col-sm-3">
-                                <div class="card-options d-inline-block">
-                                    <a data-toggle="modal" style="cursor: pointer;" data-target="#fullwindowModal"><i
-                                            class="ik ik-plus"></i></a>
-                                    <a href="customers.php" style="cursor: pointer;"><i class="ik ik-rotate-cw"></i></a>
-                                </div>
+                 
                             </div>
                             <div class="col col-sm-6">
                             <div class="card-search with-adv-search dropdown">   
                                  <p style="text-align: center;">  
                                   <?php echo $getCustomerDetails['firstname'].' '.$getCustomerDetails['othername'].' 
-                                  '.$getCustomerDetails['lastname']."'s Paid not used wedding dress"; ?></p>
+                                  '.$getCustomerDetails['lastname']."'s Used but Not Return Wedding dress"; ?></p>
 
                                     <?php
                                     $getPaid  = checkPastReturnDateSingle($database, $getPassedID);
@@ -311,9 +308,10 @@ $roleNum = mysqli_num_rows($roleResult);
                                         
                                         <th>Wedding Type</th>
                                         <th>Size</th>
+                                        <th>Quantity</th>
                                         <th>Days Over Due</th>
                                         <th>Return Date Balance</th>
-                                        <th>Date of Used</th>
+                                        <th>Date of Use</th>
                                         <th>Date of Return</th>
                                         <th>Notice </th>
                                         <th></th>
@@ -333,8 +331,9 @@ $roleNum = mysqli_num_rows($roleResult);
                                                     echo "<tr>
                                                     <td> ".$row['type']." </td>
                                                     <td> ".$row['size']." </td>
+                                                    <td> ".$row['quantity']." </td>
                                                     <td> ".$difference->d." Days </td>
-                                                    <td> ZMK ".($difference->d * 100)." </td>
+                                                    <td> ZMK ".number_format(($difference->d * 100))." </td>
                                                     <td> ".$row['dateOfUse']." </td>
                                                     <td> ".$row['dateOfReturn']." </td>
                                                     ";
@@ -349,7 +348,7 @@ $roleNum = mysqli_num_rows($roleResult);
                                                     else{
                                                         echo "<td>You missed your return date</td>";
                                                         echo"
-                                                        <td> <a href=''> <button class='btn btn-warning'> Return Dress </button> </a> </td>
+                                                        <td> <a href='return_item.php?ptID=".$row['ptID']."&qua=".$row['quantity']."&size=".$row['size']."&bi=".$row['brandID']."&du=".$row['dateOfUse']."&dr=".$row['dateOfReturn']."&dp=".$difference->d."&cusID=".$row['customerID']."'> <button class='btn btn-warning'> Return Dress </button> </a> </td>
                                                         <tr>";
                                                     }
 
@@ -371,125 +370,82 @@ $roleNum = mysqli_num_rows($roleResult);
                             </table>
                         </div>
                     </div>
-                    <div class="modal fade full-window-modal" id="fullwindowModal" tabindex="-1" role="dialog"
-                        aria-labelledby="fullwindowModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="fullwindowModalLabel">Register Customer</h5>
-                                    <button type="button" class="close closemodal" data-dismiss="modal"
-                                        aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header"></div>
-                                                <div class="card-body">
-                                                    <div class="forms-sample">
 
-                                                        <div class="form-group">
-                                                            <label for="firstname">First name <small
-                                                                    style="color:blue;"> First name cannot contain
-                                                                    number</small></label>
-                                                            <input type="text" class="form-control" id="firstname"
-                                                                title="First name cannot contain number"
-                                                                onblur="checkifempty('firstname'); checkPattern('firstname')"
-                                                                placeholder="First name" pattern="[A-Za-z]+" required>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="othername">Other name <small
-                                                                    style="color:blue;"> Other name cannot contain
-                                                                    number</small></label>
-                                                            <input type="text" class="form-control" id="othername"
-                                                                title="Other name cannot contain number"
-                                                                onblur="checkPattern('othername')"
-                                                                placeholder="Other name" pattern="[A-Za-z]+">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="lastname">Last name <small style="color:blue;">
-                                                                    Last name cannot contain number</small></label>
-                                                            <input type="text" class="form-control" id="lastname"
-                                                                title="Last name cannot contain number"
-                                                                onblur="checkifempty('lastname'); checkPattern('lastname')"
-                                                                placeholder="Last name" pattern="[A-Za-z]+" required>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="nrc">NRC <small style="color:blue;"> Format
-                                                                    ------/--/-</small></label>
-                                                            <input type="text" class="form-control" id="nrc"
-                                                                placeholder="NRC" pattern="(([0-9]{6})+/([0-9]{2})+/\d)"
-                                                                title="Format ------/--/-"
-                                                                onblur="checkifempty('nrc'); checkPattern('nrc')"
-                                                                required>
-                                                        </div>
+                    <div class="card">
+                        <div class="card-header row">
+                            <div class="col col-sm-3">
+                          
+                            </div>
+                            <div class="col col-sm-6">
+                            <div class="card-search with-adv-search dropdown">   
+                                 <p style="text-align: center;">  
+                                  <?php echo $getCustomerDetails['firstname'].' '.$getCustomerDetails['othername'].' 
+                                  '.$getCustomerDetails['lastname']."'s All Past Transactions"; ?></p>
 
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <?php
+                                    $getPaid  = getAllRecordsForThisCustomer($database, $getPassedID);
+                                    ?>
 
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header"></div>
-                                                <div class="card-body">
-                                                    <div class="forms-sample">
-                                                        <div class="form-group">
-                                                            <label for="contact">Contact <small style="color:blue;"> Use
-                                                                    correct format 09-- ------</small></label>
-                                                            <input type="text" class="form-control" id="contact"
-                                                                placeholder="Contact"
-                                                                title="Use correct format 09-- ------"
-                                                                onblur="checkifempty('contact'); checkPattern('contact')"
-                                                                pattern="(([0-9]{2})+(\d)+([0-9]{7}))" required>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="email">Email address <small style="color:blue;">
-                                                                    Email should contain @ and .</small></label>
-                                                            <input type="email" class="form-control" id="email"
-                                                                placeholder="Email" title="Email should contain @ and ."
-                                                                onblur="checkifempty('email'); checkPattern('email')"
-                                                                pattern="[a-zA-Z0-9!#$%&amp;'*+\/=?^_`{|}~.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*"
-                                                                required>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="city">Select City <small style="color:blue;">
-                                                                    Please select an option</small></label>
-                                                            <select name="city" id="city" class="form-control"
-                                                                onchange="checkcitycombovalue()" required>
-                                                                <option value=""></option>
-                                                                <option value="Kabwe">Kabwe</option>
-                                                                <option value="Kitwe">Kitwe</option>
-                                                                <option value="LivingStone">LivingStone</option>
-                                                                <option value="Lusaka">Lusaka</option>
-                                                                <option value="Ndola">Ndola</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="address">Residential Address <small
-                                                                    style="color:blue;"> Please provide residential
-                                                                    address</small></label>
-                                                            <input type="text" class="form-control" id="address"
-                                                                placeholder="Residential Address"
-                                                                title="Please provide residential"
-                                                                onblur="checkifempty('address');" required>
-                                                        </div>
 
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary closemodal" data-dismiss="modal"
-                                        id="closemodal">Close</button>
-                                    <button type="button" class="btn btn-primary" id="addcustomer">Save</button>
                                 </div>
                             </div>
+
+                        </div>
+                        <div class="card-body">
+
+                    
+                            <table id="advanced_table" class="table">
+                                <thead>
+                                    <tr>
+
+                                        
+                                        <th>Wedding Type</th>
+                                        <th>Size</th>
+                                        <th>Quantity</th>
+                                        <th>Days Over Due</th>
+                                        <th>Return Balance</th>
+                                        <th>Cost of Booking</th>
+                                        <th>Date of Use</th>
+                                        <th>Date of Return</th>
+                                        <!-- <th>Notice </th> -->
+                                        <th></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php   
+                                        if($getPaid){
+
+                                            while($row = mysqli_fetch_array($getPaid)){
+                                                $returnDate = new DateTime($row['dateOfReturn']);
+                                                $actualDate = new DateTime(date("Y-m-d"));
+                                                $difference = $returnDate->diff($actualDate);
+
+                                                    echo "<tr>
+                                                    <td> ".$row['type']." </td>
+                                                    <td> ".$row['size']." </td>
+                                                    <td> ".$row['quantity']." </td>
+                                                    <td> ".($row['overReturnDateAmount']/100)." Days </td>
+                                                    <td> ZMK ".number_format($row['overReturnDateAmount'])." </td>
+                                                    <td> ZMK ".number_format($row['amountPaid'])." </td>
+                                                    <td> ".$row['dateOfUse']." </td>
+                                                    <td> ".$row['dateOfReturn']." </td>
+                                                    ";
+                                            }
+                                        }else{
+                                    ?>
+                                    <tr>
+                                        <td colspan="5">No Data Found</td>
+                                    </tr>
+                                    <?php
+                                                    }
+                                                    ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+            
                     <div class="modal fade full-window-modal" id="fullwindowModal2" tabindex="-1" role="dialog"
                         aria-labelledby="fullwindowModalLabel2" aria-hidden="true">
                         <div class="modal-dialog" role="document">
@@ -545,9 +501,7 @@ $roleNum = mysqli_num_rows($roleResult);
                                 <div class="row">
                                     <div class="col-md-4 ml-auto mr-auto">
                                         <div class="input-wrap">
-                                            <!-- <input type="text" id="quick-search" class="form-control"
-                                                placeholder="Search..." />
-                                            <i class="ik ik-search"></i> -->
+                             
                                         </div>
                                     </div>
                                 </div>
@@ -556,16 +510,7 @@ $roleNum = mysqli_num_rows($roleResult);
                         <div class="modal-body d-flex align-items-center">
                             <div class="container">
                                 <div class="apps-wrap">
-                                    <!-- <div class="app-item">
-                                        <a href="#"><i class="ik ik-bar-chart-2"></i><span>Dashboard</span></a>
-                                    </div>
-
-                                    <div class="app-item">
-                                        <a href="#"><i class="ik ik-mail"></i><span>Message</span></a>
-                                    </div>
-                                    <div class="app-item">
-                                        <a href="#"><i class="ik ik-users"></i><span>Account</span></a>
-                                    </div> -->
+                                   
                                     <div class="app-item">
                                         <a href="logout.php"><i
                                                 class="ik ik-power dropdown-icon"></i><span>Logout</span></a>

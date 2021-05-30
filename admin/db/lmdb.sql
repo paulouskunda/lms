@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 15, 2021 at 11:07 AM
+-- Generation Time: May 25, 2021 at 02:03 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.2.31
 
@@ -100,6 +100,7 @@ CREATE TABLE `customer` (
 
 INSERT INTO `customer` (`customerID`, `firstname`, `othername`, `lastname`, `ID`, `contact`, `email`, `residentialArea`, `city`, `password`, `isActive`) VALUES
 ('LMS-CSTM-2021111', 'Innocent', 'Sha', 'Shatamuka', '123412/12/1', '0975363338', 'innocentshatamuka@gmail.com', '3059 New Mushili', 'Kitwe', 'ca06418aaf960bf4912174c980d2508f273b2664', 1),
+('LMS-CSTM-2021610', 'Zulu', '', 'Kill', '142578/45/1', '098234212', 'mwamba@banking.com', '1545 Kabushi Ndola', 'Kabwe', 'ca06418aaf960bf4912174c980d2508f273b2664', 1),
 ('LMS-CSTM-2021753', 'Paul', '', 'Kunda', '481971/61/1', '0975363338', 'zedhiphop24@GMAIL.COM', '3059', 'Kabwe', 'ca06418aaf960bf4912174c980d2508f273b2664', 1);
 
 -- --------------------------------------------------------
@@ -150,7 +151,7 @@ CREATE TABLE `items` (
 --
 
 INSERT INTO `items` (`itemID`, `catID`, `brandID`, `small`, `medium`, `large`, `quantity`, `quantityFlag`, `price`, `status`) VALUES
-(1, 'w4', 'Gucci574', 9, 10, 10, 29, 1, 12, 1),
+(1, 'w4', 'Gucci574', 18, 5, 10, 23, 1, 2000, 1),
 (2, 'w4', 'New642', 5, 1, 2, 8, 1, 3800, 1);
 
 -- --------------------------------------------------------
@@ -231,17 +232,18 @@ CREATE TABLE `payment_tracking` (
   `dateOfReturn` date NOT NULL,
   `amountPaid` double NOT NULL,
   `totalBill` double NOT NULL,
+  `overReturnDateAmount` double DEFAULT 0,
   `dateOfPayment` date NOT NULL,
-  `statusOfPayment` tinyint(1) NOT NULL
+  `statusOfPayment` tinyint(1) NOT NULL,
+  `statusOfReturn` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `payment_tracking`
 --
 
-INSERT INTO `payment_tracking` (`ptID`, `customerID`, `brandID`, `size`, `type`, `quantity`, `dateOfUse`, `dateOfReturn`, `amountPaid`, `totalBill`, `dateOfPayment`, `statusOfPayment`) VALUES
-(4, 'LMS-CSTM-2021753', 'Gucci574', 'small', 'Silk', 5, '2021-05-15', '2021-05-16', 12, 12, '2021-05-13', 1),
-(5, 'LMS-CSTM-2021111', 'New642', 'medium', 'Silk', 6, '2021-05-17', '2021-05-18', 3800, 3800, '2021-05-14', 1);
+INSERT INTO `payment_tracking` (`ptID`, `customerID`, `brandID`, `size`, `type`, `quantity`, `dateOfUse`, `dateOfReturn`, `amountPaid`, `totalBill`, `overReturnDateAmount`, `dateOfPayment`, `statusOfPayment`, `statusOfReturn`) VALUES
+(1, 'LMS-CSTM-2021111', 'Gucci574', 'small', 'Silk', 8, '2021-05-16', '2021-05-17', 2000, 2000, 800, '2021-05-15', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -261,8 +263,7 @@ CREATE TABLE `payment_tracking_history` (
 --
 
 INSERT INTO `payment_tracking_history` (`PTHID`, `payment_tracking_id`, `amount_paid`, `date_of_payment`) VALUES
-(8, 4, 2, '2021-05-14 09:15:12'),
-(9, 5, 3800, '2021-05-14 13:47:46');
+(1, 1, 2000, '2021-05-15 11:59:49');
 
 -- --------------------------------------------------------
 
@@ -492,13 +493,13 @@ ALTER TABLE `notification`
 -- AUTO_INCREMENT for table `payment_tracking`
 --
 ALTER TABLE `payment_tracking`
-  MODIFY `ptID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ptID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `payment_tracking_history`
 --
 ALTER TABLE `payment_tracking_history`
-  MODIFY `PTHID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `PTHID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `size_of_dress`

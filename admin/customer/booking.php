@@ -1,6 +1,6 @@
 <?php
-include './databaseconnector/dbConnector.php';
-if (!isset($_SESSION['login_user'])) {
+include './dbConnector.php';
+if (!isset($_SESSION['userID'])) {
     header("location: logout.php");
 }
 
@@ -22,25 +22,25 @@ if(isset($_POST['book_dress'])){
     $type = mysqli_real_escape_string($database, $_POST['type']);
 
     $addUp = addNewBooking($database, $customer_id, $brandID, $dateofuse, $dateofRuturn, $paymentPlan, $price, $payment_amount, $size, $quatity, $type, $itemID);
-    echo "<script> console.log('full payment - tracking ".$addUp."'); </script>";
 
 
     if($addUp === "Already_Booked"){
         echo "<script>alert('This ".$dateofuse." date is already booked.')</script>";
-
-    }else if($addUp === false || $addUp === 0){
-        echo "<script>alert('We encounter an error.')</script>";
-
-    }else if($addUp === "full_pay"){
-        echo "<script>
-             location.href = 'contract.php?cusID=".$customer_id."&ptID=".$_GET['ptID']."';
-        </script>";
     }
-    else{
-        echo "<script>
-                location.href = 'single_customer.php?id=".$customer_id."';
-            </script>";
-    }
+    echo "<script> console.log('full payment - tracking ".$addUp."'); </script>";
+    // }else if($addUp === false || $addUp === 0){
+    //     echo "<script>alert('We encounter an error.')</script>";
+
+    // }else if($addUp === "full_pay"){
+    //     echo "<script>
+    //          location.href = 'contract.php?cusID=".$customer_id."&ptID=".$_GET['ptID']."';
+    //     </script>";
+    // }
+    // else{
+    //     echo "<script>
+    //             location.href = 'single_customer.php?id=".$customer_id."';
+    //         </script>";
+    // }
 
 }
 
@@ -52,6 +52,7 @@ $getBrand = mysqli_query($database, "SELECT * FROM brand WHERE brandID = '".$_GE
 $getBrandRow = mysqli_fetch_assoc($getBrand);
 $getBrandName = $getBrandRow['brand_name'];
 
+
 // get all brand
 
 $getCat = mysqli_query($database, "SELECT * FROM category WHERE catID = '".$_GET['cat']."'");
@@ -62,12 +63,13 @@ $getCatName = $getCatRow['category_name'];
 //End populate users into table
 
 //Start populate customer combo box
-
-$selectcustomer = "SELECT `customerID`, `firstname`, `othername`, `lastname`, `ID`, `contact`, `email`, `residentialArea`, `city`, `password`, `isActive` FROM `customer` WHERE `isActive` = 1";
+$selectcustomer = "SELECT `customerID`, `firstname`, `othername`, `lastname`, `ID`, `contact`, `email`, `residentialArea`, `city`, `password`, `isActive` FROM `customer` WHERE customerID = '".$_GET['u']."' AND `isActive` = 1";
 
 $customerresult = mysqli_query($database, $selectcustomer);
-
+if(!$customerresult)
+    echo mysqli_error($database);
 $customernum = mysqli_num_rows($customerresult);
+
 //End populate customer combo box
 
 //Start populate brand combo box
@@ -89,25 +91,25 @@ $brandNum = mysqli_num_rows($brandResult);
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
-    <link rel="stylesheet" href="plugins/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="plugins/icon-kit/dist/css/iconkit.min.css">
-    <link rel="stylesheet" href="plugins/ionicons/dist/css/ionicons.min.css">
-    <link rel="stylesheet" href="plugins/perfect-scrollbar/css/perfect-scrollbar.css">
-    <link rel="stylesheet" href="plugins/datatables.net-bs4/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="plugins/jvectormap/jquery-jvectormap.css">
-    <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css">
-    <link rel="stylesheet" href="plugins/weather-icons/css/weather-icons.min.css">
-    <link rel="stylesheet" href="plugins/c3/c3.min.css">
-    <link rel="stylesheet" href="plugins/owl.carousel/dist/assets/owl.carousel.min.css">
-    <link rel="stylesheet" href="plugins/owl.carousel/dist/assets/owl.theme.default.min.css">
-    <link rel="stylesheet" href="plugins/jquery-toast-plugin/dist/jquery.toast.min.css">
-    <link rel="stylesheet" href="dist/css/theme.min.css">
-    <link rel="stylesheet" href="plugins/sweetalert2-8.13.5/package/dist/sweetalert2.min.css">
-    <script src="src/js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="../plugins/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../plugins/icon-kit/dist/css/iconkit.min.css">
+    <link rel="stylesheet" href="../plugins/ionicons/dist/css/ionicons.min.css">
+    <link rel="stylesheet" href="../plugins/perfect-scrollbar/css/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../plugins/datatables.net-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/jvectormap/jquery-jvectormap.css">
+    <link rel="stylesheet" href="../plugins/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="../plugins/weather-icons/css/weather-icons.min.css">
+    <link rel="stylesheet" href="../plugins/c3/c3.min.css">
+    <link rel="stylesheet" href="../plugins/owl.carousel/dist/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="../plugins/owl.carousel/dist/assets/owl.theme.default.min.css">
+    <link rel="stylesheet" href="../plugins/jquery-toast-plugin/dist/jquery.toast.min.css">
+    <link rel="stylesheet" href="../dist/css/theme.min.css">
+    <link rel="stylesheet" href="../plugins/sweetalert2-8.13.5/package/dist/sweetalert2.min.css">
+    <script src="../src/js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css"> 
 
 </head>
 
@@ -163,23 +165,7 @@ $brandNum = mysqli_num_rows($brandResult);
                             <div class="nav-item active">
                                 <a href="dashboard.php"><i class="ik ik-bar-chart-2"></i><span>Dashboard</span></a>
                             </div>
-                            <div class="nav-item has-sub">
-                                <a href="javascript:void(0)"><i class="ik ik-users"></i><span>User Management</a>
-                                <div class="submenu-content">
-                                    <!-- <a href="users.php" class="menu-item">Users</a> -->
-                                    <a href="customers.php" class="menu-item">Customers</a>
-                                    <!-- <a href="#" class="menu-item">Roles</a> -->
-
-                                </div>
-                            </div>
-                            <div class="nav-item has-sub active open">
-                                <a href="#"><i class="ik ik-layers "></i><span>Store Management</span></a>
-                                <div class="submenu-content">
-                                    <a href="inventory.php" class="menu-item">Inventory</a>
-                                    <a href="lease.php" class="menu-item">Lease</a>
-                                    <!-- <a href="#" class="menu-item">Accounting</a> -->
-                                </div>
-                            </div>
+                    
                         </nav>
                     </div>
                 </div>
@@ -198,7 +184,6 @@ $brandNum = mysqli_num_rows($brandResult);
                                                     <label for="brand">Select Customer</label>
                                                     <select name="customer_id" id="leasecustomername" class="form-control"
                                                         required>
-                                                        <option value=""></option>
                                                         <?php
                                                     if ($customernum > 0) {
                                                         while ($customerrow = mysqli_fetch_array($customerresult)) {
@@ -310,22 +295,7 @@ $brandNum = mysqli_num_rows($brandResult);
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="card-body">
-                                            <div class="forms-sample">
-                                            
-                                                <div class="form-group">
-                                                    <label for="brand">Payment Plan</label>
-                                                    <select name="paymentPlan" id="leasecustomername" class="form-control"
-                                                        required>
-                                                        <option value=""></option>
-                                                        <option value="installments">Installments</option>
-                                                        <option value="full">Full</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        
                                 </div>
                                   <div class="row">
                                     <div class="col-lg-6 col-md-6 col-sm-12">
@@ -343,10 +313,16 @@ $brandNum = mysqli_num_rows($brandResult);
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="card-body">
                                             <div class="forms-sample">
-                                            
+                                            <label for="brand">Payment Plan</label>
+                                                    <select name="paymentPlan" id="leasecustomername" class="form-control"
+                                                        required>
+                                                        <option value=""></option>
+                                                        <option value="installments">Installments</option>
+                                                        <option value="full">Full</option>
+                                                    </select>
                                                 <div class="form-group">
-                                                    <label for="brand">Payment Amount</label>
-                                                    <input type="text" name="payment_amount"  class="form-control" />
+                                                    <!-- <label for="brand">Payment Amount</label> -->
+                                                    <input value="0" hidden type="text" name="payment_amount"  class="form-control" />
 
                                                 </div>
                                             </div>

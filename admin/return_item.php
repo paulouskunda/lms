@@ -5,21 +5,35 @@ if (!isset($_SESSION['login_user'])) {
 }
 
 if(isset($_POST['settle'])){
-    $actualAmount = $_POST['price'];
-    $paidAmount = $_POST['payment_amount'];
+    $brandID = $_POST['brandID'];
+    $payable = $_POST['over_due_payable'];
     $ptID = $_POST['ptID'];
+    $size = $_POST['size'];
+    $quantity = $_POST['quantity'];
 
-    $settleMe = updateBookingPayment($database, $ptID, $paidAmount, $actualAmount);
 
-    if($settleMe == "all_settled"){
-        echo "<script>
-                location.href = 'contract.php?cusID=".$_GET['cusID']."&ptID=".$_GET['ptID']."';
-            </script>";
-    }else{
-        echo "<script>
+
+    $settleMe = returnDress($database, $ptID, $brandID, $size, $quantity, $payable);
+    if($settleMe){
+        echo "<script> 
+                        console.log('Thank you for returing the dress');
+                        location.href = 'single_customer.php?id=".$_GET['cusID']."';
+             </script>";
+    }else {
+        echo "<script> 
+                console.log('Error, try again later...');
                 location.href = 'single_customer.php?id=".$_GET['cusID']."';
-            </script>";
+               </script>";
     }
+    // if($settleMe = "all_settled"){
+    //     echo "<script>
+    //             location.href = 'contract.php?cusID=".$_GET['cusID']."&ptID=".$_GET['ptID']."';
+    //         </script>";
+    // }else{
+    //     echo "<script>
+    //             location.href = 'single_customer.php?id=".$_GET['cusID']."';
+    //         </script>";
+    // }
 }
 
 ?>
@@ -134,7 +148,8 @@ if(isset($_POST['settle'])){
                        <div class="col-lg-12 col-md-12 col-sm-12">
                             <form method="POST" action="">
                             <input readonly hidden name="ptID"  type="text" value="<?php echo $_GET['ptID']; ?>" class="form-control" />
-                            <input readonly hidden name="actualAmount"  type="text" value="<?php echo $_GET['ac']; ?>" class="form-control" />
+                            <input readonly hidden name="brandID"  type="text" value="<?php echo $_GET['bi']; ?>" class="form-control" />
+                            <input readonly hidden name="size"  type="text" value="<?php echo $_GET['size']; ?>" class="form-control" />
 
                           
                             
@@ -171,9 +186,9 @@ if(isset($_POST['settle'])){
                                             <div class="forms-sample">
                                             
                                             <div class="form-group">
-                                                <label for="brand">Balance </label>
+                                                <label for="brand">Days Past Since Return </label>
 
-                                                    <input type="text" name="price" readonly  value="<?php echo $_GET['b'];?>" class="form-control" />
+                                                    <input type="text" name="price" readonly  value="<?php echo $_GET['dp'];?>" class="form-control" />
                                                 </div> 
                                             </div>
                                         </div>
@@ -183,15 +198,27 @@ if(isset($_POST['settle'])){
                                             <div class="forms-sample">
                                             
                                                 <div class="form-group">
-                                                    <label for="brand">Payment Amount</label>
-                                                    <input type="number" min="1" max="<?php echo $_GET['b'];?>" name="payment_amount" required class="form-control" />
+                                                    <label for="brand">Over Due Payable Amount</label>
+                                                    <input type="number" readonly value="<?php echo $_GET['dp']*100;?>" name="over_due_payable" required class="form-control" />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="card-body">
+                                            <div class="forms-sample">
+                                            
+                                                <div class="form-group">
+                                                    <label for="brand">Quantity</label>
+                                                    <input type="number" readonly value="<?php echo $_GET['qua']; ?>" name="quantity" required class="form-control" />
 
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <input type="submit" class="btn btn-primary" name="settle" value="Settle Balance" />
+                                <input type="submit" class="btn btn-primary" name="settle" value="Return & Settle Payable" />
                             
                             </form>
                         </div>

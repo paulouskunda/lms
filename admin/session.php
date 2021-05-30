@@ -41,21 +41,44 @@ if (isset($_POST['username'])) {
 
     else if ($username !== "root") {
         //check if user exists
-        $query = "SELECT `username` FROM `users` WHERE `username` = '$username' AND `password` = '" . $password . "' AND isActive = 1";
+    
+        $query = "SELECT * FROM `customer` WHERE `email` = '$username' AND isActive = 1";
 
         $result = mysqli_query($database, $query);
         if($result){
-            echo "some";
             if(mysqli_num_rows($result)>0){
                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                ///salt function for password salting after encryption
+                $salt = '1234567890,?/()pDqrstka*+';
+                ///Encryption and salting of password using SHA1
+                $hashed_password = sha1($salt . $password);
 
-                $_SESSION['login_user'] = $username;
+                if($row['password'] === $hashed_password){
+                    $_SESSION['userID'] = $row['customerID'];
+                    header("location: customer/dashboard.php");
+                }else{
+                    echo '<script> 
+                            alert("Incorrect password or user");
+                            location.href="index.php";
+                          </script>';
+
+                    // echo "Not a user ".mysqli_error($database);
+
+                }
+                // $_SESSION['login_user'] = $username;
             }else{
-                echo "Not a user";
+                echo '<script> 
+                          alert("Incorrect password or user");
+                          location.href="index.php";
+                       </script>';
             }
 
         }else{
-            echo mysqli_error($database);
+            echo '<script> 
+            alert("We ecountered an error");
+            console.log("We ecountered an error");
+            location.href="index.php";
+         </script>';        
         }
 
 
@@ -91,7 +114,7 @@ if (isset($_SESSION['login_user'])) {
         
         echo $user_check;
         //get user details
-        $session_query = mysqli_query($database, "SELECT * FROM `users` WHERE `username` = '$user_check'");
+        $session_query = mysqli_query($database, "SELECT * FROM `customer` WHERE `email` = '$user_check'");
         if($session_query){
             echo "session_query";
             if(mysqli_num_rows($session_query)>0){
@@ -143,9 +166,19 @@ if (isset($_SESSION['login_user'])) {
                 echo "<script> location.href='dashboard.php';</script>";
 
             } else {
+                echo '<script> 
+                alert("Check your username or password");
+                console.log("We ecountered an error");
+                location.href="index.php";
+             </script>';  
                 echo mysqli_error($database);
             }
         } else {
+            echo '<script> 
+            alert("We ecountered an error");
+            console.log("We ecountered an error");
+            location.href="index.php";
+         </script>';  
             echo mysqli_error($database);
         }
     }

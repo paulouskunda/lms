@@ -14,6 +14,27 @@
     
     $details = mysqli_fetch_assoc($selectCustomer);
 
+    $disableMe = checkContract($database, $getCus, $ptID);
+    if(isset($_POST['submit'])){
+        $extraDetails = mysqli_real_escape_string($database, $_POST['other_details']);
+        $getCusForm = mysqli_real_escape_string($database, $_POST['getCus']);
+        $ptIDForm = mysqli_real_escape_string($database, $_POST['ptID']);
+
+        $didISign = signContract($database, $getCusForm, $ptIDForm, $extraDetails);
+        if($didISign === true || $didISign === 1){
+            echo '<script> 
+                    alert("Thank you for signing the contract");
+                    location.href = "single_customer.php?id='.$getCusForm.'";
+                 </script>';
+        }else{
+            echo '<script> 
+                    alert("Error was encountered '.$didISign.'");
+                 </script>'; 
+        }
+
+    }
+
+
 ?>
 <!doctype html>
 <html class="no-js" lang="en">
@@ -66,7 +87,7 @@
                             Address,  <strong><?php echo $details['residentialArea']; ?></strong>Phone Number  <strong><?php echo $details['contact']; ?></strong>
                                 on <strong> <?php echo date("m/d/Y"); ?> </strong>(Date). </p>
 
-                            <p> The client has received the wedding dress in an okay condition. </p>
+                            <p> The client has received the wedding dress in an excellent condition. </p>
                             The total value of the aforementioned item is  <strong><?php echo $details['totalBill']; ?></strong>, the client has checked and received all the items has agreed to return all items 
                             on  <strong><?php echo $details['dateOfReturn']; ?></strong> (return date). </p>
 
@@ -74,17 +95,25 @@
                             starting from the next day after the return date. </p>
 
 
-                            <p> If the client loses or damages the dress or any other received item beyond repair, he/she liable to pay, shall be invoked,
-                                with the counting starting from the next day after return date. </p>
+                            <p> If the client loses or damages the dress or any other received item beyond repair, he/she liable to pay an amount equivalent to the value of the item in question (with the minimum 
+                                amount being ZMK 100). </p>
 
 
                             <p>  </p>
-
-                                <form action="" method="">
-                                    <label>Any extra details?</label>
-                                    <textarea class="form-control" name="other_details" placeholder="Do you have any information..."></textarea>
-                                    <input type="submit"  class="print" name="submit" value="Agreed"/>
-                                </form>
+                                <?php 
+                                 if(!$disableMe){
+                                     echo '<form action="" method="POST">
+                                     <input name="getCus" value="'.$getCus.'" hidden/>
+                                     <input name="ptID" value="'.$ptID.'" hidden/>
+                                                <label>Any extra details?</label>
+                                                <textarea class="form-control" name="other_details" placeholder="Do you have any information..."></textarea><br/>
+                                                <input class="btn btn-primary" type="submit"  class="print" name="submit" value="Agreed"/>
+                                            </form>';
+                                 }else{
+                                     echo '<p> <strong>Already Signed</strong></p>';
+                                 }
+                                ?>
+                          
                        
                         </div>
 

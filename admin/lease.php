@@ -198,7 +198,7 @@ $brandNum = mysqli_num_rows($brandResult);
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="card">
+                            <!-- <div class="card">
                                 <div class="card-head">
                                     <h5>Today's Transactions Report</h5>
                                 </div>
@@ -216,12 +216,12 @@ $brandNum = mysqli_num_rows($brandResult);
                                             </tr>
                                         </thead>
                                         <tbody>
-
+                                            <?php ?>
                                        
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>

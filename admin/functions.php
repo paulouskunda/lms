@@ -131,7 +131,7 @@ function updateBookingPayment($db, $payID, $paidAmount, $actual_price){
 
 function updateCounter($db, $size, $quantity, $id){
 
-    echo "Are we??";
+    // echo "Are we??";
     if($size == "small" || $size == "Small")
          $updateTracking = mysqli_query($db, "UPDATE items SET `small`= `small` - $quantity, `quantity`= `quantity` - $quantity WHERE itemID = '$id' ");
     else if($size == "medium" || $size == "Medium")
@@ -153,6 +153,19 @@ function updateCounter($db, $size, $quantity, $id){
 function getAllNotYetPaidBooking($db, $customerID){
 
     $select_not_paid = mysqli_query($db, "SELECT * FROM payment_tracking WHERE customerID = '$customerID' AND statusOfPayment = 0");
+    if($select_not_paid){
+        return $select_not_paid;
+    }else{
+        echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+
+        return false;
+    }
+
+}
+
+function getAllRecordsForThisCustomer($db, $customerID){
+
+    $select_not_paid = mysqli_query($db, "SELECT * FROM payment_tracking WHERE customerID = '$customerID' ");
     if($select_not_paid){
         return $select_not_paid;
     }else{
@@ -186,7 +199,7 @@ function getHistoricalTransaction($db, $customerID){
 }
 
 function checkPastReturnDateSingle($db, $customerID){
-    $selectNotReturn = mysqli_query($db, "SELECT * FROM payment_tracking WHERE customerID = '$customerID' AND statusOfPayment = 1 OR statusOfPayment = 2 AND dateOfReturn <= NOW()");
+    $selectNotReturn = mysqli_query($db, "SELECT * FROM payment_tracking pt WHERE pt.customerID = '$customerID'  AND  pt.statusOfReturn = 0 AND pt.dateOfReturn <= NOW()");
     if($selectNotReturn){
         return $selectNotReturn;
     }else{
@@ -198,7 +211,7 @@ function checkPastReturnDateSingle($db, $customerID){
 
 
 function checkPastReturnDate($db){
-    $select_not_returned = mysqli_query($db, "SELECT * FROM payment_tracking WHERE  statusOfPayment = 1 AND dateOfReturn < NOW()");
+    $select_not_returned = mysqli_query($db, "SELECT * FROM payment_tracking WHERE  statusOfReturn = 0 AND dateOfReturn < NOW()");
     if($select_not_returned){
         if(mysqli_num_rows($select_not_returned)>0){
             foreach($select_not_returned as $rows){
@@ -231,15 +244,51 @@ function checkPastReturnDate($db){
 
 
 
-function returnDress($db, $ptID){
-    $update = mysqli_query($db, "UPDATE payment_tracking SET  statusOfPayment = 1 WHERE ptID = ".$rows['ptID']."");
+function returnDress($db, $ptID, $itemID, $size, $quantity, $amount_paid){
+
+    // echo $itemID;
+
+    $update = mysqli_query($db, "UPDATE payment_tracking SET  statusOfPayment = 1, statusOfReturn = 1, overReturnDateAmount = '$amount_paid' WHERE ptID = $ptID");
 
     // update item and add the return
+    if($update){
+            if(updateCounterReturn($db, $size, $quantity, $itemID)){
+                return true;
+            }else{
+                echo "<script> console.log('update return - tracking ".mysqli_error($db)."'); </script>";
 
+                return false;
+            }
+    }else{
+        echo "<script> console.log('update return ".mysqli_error($db)."'); </script>";
+
+        return false;
+    }
     // TODO WORK HERE
 
 
 }
+
+function updateCounterReturn($db, $size, $quantity, $id){
+
+    // echo "Are we??";
+    if($size == "small" || $size == "Small")
+         $updateTracking = mysqli_query($db, "UPDATE items SET `small`= `small` + $quantity, `quantity`= `quantity` + $quantity WHERE brandID = '$id' ");
+    else if($size == "medium" || $size == "Medium")
+        $updateTracking = mysqli_query($db, "UPDATE items SET `medium` = `medium` + $quantity, `quantity`= `quantity` + $quantity WHERE brandID = '$id' ");
+    else if($size == "large" || $size == "Large")
+        $updateTracking = mysqli_query($db, "UPDATE items SET `large` = `large` + $quantity, `quantity`= `quantity` + $quantity WHERE brandID = '$id' ");
+    
+    if($updateTracking)
+        return true;
+    else{
+        echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+
+        return false;
+    }
+ 
+
+} 
 
 function addCharge($db){
         $select_not_returned = mysqli_query($db, "SELECT * FROM payment_tracking WHERE  statusOfPayment = 2 AND dateOfReturn < NOW()");
@@ -275,14 +324,32 @@ function addCharge($db){
 
 function checkContract($db, $customerID, $ptID){
     $selectContract = mysqli_query($db, "SELECT * FROM contracts WHERE cusID = '$customerID' AND ptID = '$ptID'");
-    if(mysqli_num_rows($selectContract)>0)
-        return true;
-    else
+    if($selectContract){
+        if(mysqli_num_rows($selectContract)>0){
+            
+            echo "<script> console.log('Check Dates - tracking '); </script>";
+            return true;
+
+        }
+        else{
+
+            echo "<script> console.log('Check Dates - tracking '); </script>";
+            return false;
+
+        }
+    }else{
+        echo "<script> console.log('Check Dates - tracking ".mysqli_error($db)."'); </script>";
         return false;
+    }
+  
 }
 
-function signContract(){
-
+function signContract($db, $customer_id, $ptID, $extraDetails){
+    $signNewContract = mysqli_query($db, "INSERT INTO contracts(contractExtraInfo, dateAgreed, cusID, ptID) VALUES ('$extraDetails', NOW(), '$customer_id', '$ptID')");
+    if($signNewContract)
+        return true;
+    else
+        return mysqli_error($db);
 }
 
 ?>
