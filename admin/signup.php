@@ -1,4 +1,68 @@
 <?php
+include './databaseconnector/dbConnector.php';
+
+if(isset($_POST['submit_form'])){
+    
+    ////Instantiat variables
+    $customerID = 'LMS-CSTM-'.date('Y').rand(10,999);
+    $firstname = $_POST['firstname'];
+    $othername = $_POST['othername'];
+    $lastname = $_POST['lastname'];
+    $ID = $_POST['nrc'];
+    $contact = $_POST['contact'];
+    $email = $_POST['email'];
+    $residential = $_POST['address'];
+    $city = $_POST['city'];
+    $password = 'LMS@2020';
+    $isactive = '1';
+
+    ///salt function for password salting after encryption
+    $salt = '1234567890,?/()pDqrstka*+';
+    ///Encryption and salting of password using SHA1
+    $hashed_password = sha1($salt . $password);
+
+
+    ///Check if user exists
+
+    $checkexistinguser = "SELECT `customerID` FROM `customer` WHERE `ID` = '$ID' or `email` = '$email'";
+
+    $result = mysqli_query($database, $checkexistinguser);
+    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+        //row count returned
+    $count = mysqli_num_rows($result);
+
+    if($count > 0){
+        echo '<script> alert("User with the provide details already exist")</script>';
+    }
+
+    if($count == 0){
+
+        $insertcustomer = "INSERT INTO `customer`(`customerID`, `firstname`, `othername`, `lastname`,"
+        ." `ID`, `contact`, `email`, `residentialArea`, `city`, `password`, `isActive`)"
+        ." VALUES ('$customerID','$firstname','$othername','$lastname','$ID',"
+        ."'$contact','$email','$residential','$city','$hashed_password','$isactive')";
+        
+        
+        if(mysqli_query($database, $insertcustomer)){
+            echo '';
+            $_SESSION['userID'] = $customerID;
+            echo '<script> alert("Thank you for siging up, proceed to login.");installments</script>';
+
+            header("location: dashboard.php");
+        } else {
+            echo "<script>
+                            console.log('".mysqli_error($database)."'); 
+                            alert('Error, try again later.');
+                 </script>";
+
+        }
+
+        
+    }
+
+
+}
 ?>
 
 <!doctype html>
@@ -46,31 +110,28 @@
                         </div>
                         <h3>ReadyToWed</h3>
                      
-                                <form>
+                                <form method="POST" action="">
                                     <div class="row">
                                     <div class="col-xl-4">
                                         <div class="form-group">
                                             <label for="firstname">First name <small
-                                                    style="color:blue;"> Cannot contain
-                                                    number</small></label>
-                                            <input type="text" class="form-control" id="firstname"
+                                                    style="color:blue;"> Only Letters</small></label>
+                                            <input type="text" class="form-control" name="firstname"
                                                 title="First name cannot contain number"
                                                 onblur="checkifempty('firstname'); checkPattern('firstname')"
                                                 placeholder="First name" pattern="[A-Za-z]+" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="othername">Other name <small
-                                                    style="color:blue;"> Other name cannot contain
-                                                    number</small></label>
-                                            <input type="text" class="form-control" id="othername"
+                                                    style="color:blue;"> Only Letters</small></label>
+                                            <input type="text" class="form-control" name="othername"
                                                 title="Other name cannot contain number"
                                                 onblur="checkPattern('othername')"
                                                 placeholder="Other name" pattern="[A-Za-z]+">
                                         </div>
                                         <div class="form-group">
-                                            <label for="lastname">Last name <small style="color:blue;">
-                                                    Last name cannot contain number</small></label>
-                                            <input type="text" class="form-control" id="lastname"
+                                            <label for="lastname">Last name <small style="color:blue;"> Only Letters</small></label>
+                                            <input type="text" class="form-control" name="lastname"
                                                 title="Last name cannot contain number"
                                                 onblur="checkifempty('lastname'); checkPattern('lastname')"
                                                 placeholder="Last name" pattern="[A-Za-z]+" required>
@@ -83,7 +144,7 @@
                                             <div class="form-group">
                                                 <label for="nrc">NRC <small style="color:blue;"> Format
                                                         ------/--/-</small></label>
-                                                <input type="text" class="form-control" id="nrc"
+                                                <input type="text" class="form-control" name="nrc"
                                                     placeholder="NRC" pattern="(([0-9]{6})+/([0-9]{2})+/\d)"
                                                     title="Format ------/--/-"
                                                     onblur="checkifempty('nrc'); checkPattern('nrc')"
@@ -95,16 +156,15 @@
                                     
                                                 <label for="contact">Contact <small style="color:blue;"> Use
                                                         correct format 09-- ------</small></label>
-                                                <input type="text" class="form-control" id="contact"
+                                                <input type="text" class="form-control" name="contact"
                                                     placeholder="Contact"
                                                     title="Use correct format 09-- ------"
                                                     onblur="checkifempty('contact'); checkPattern('contact')"
                                                     pattern="(([0-9]{2})+(\d)+([0-9]{7}))" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="email">Email address <small style="color:blue;">
-                                                        Email should contain @ and .</small></label>
-                                                <input type="email" class="form-control" id="email"
+                                                <label for="email">Email address </label>
+                                                <input type="email" class="form-control" name="email"
                                                     placeholder="Email" title="Email should contain @ and ."
                                                     onblur="checkifempty('email'); checkPattern('email')"
                                                     pattern="[a-zA-Z0-9!#$%&amp;'*+\/=?^_`{|}~.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*"
@@ -129,10 +189,8 @@
                                                             </select>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="address">Residential Address <small
-                                                                    style="color:blue;"> Please provide residential
-                                                                    address</small></label>
-                                                            <input type="text" class="form-control" id="address"
+                                                            <label for="address">Residential Address </label>
+                                                            <input type="text" class="form-control" name="address"
                                                                 placeholder="Residential Address"
                                                                 title="Please provide residential"
                                                                 onblur="checkifempty('address');" required>
@@ -144,27 +202,11 @@
                                     
 
 
-                                                <input type="submit"/>
+                                                <input name="submit_form" class="btn btn-primary" type="submit"/>
                                            
 
                                                 </form>
-                        <!-- <form action="session.php" method="POST">
-                        <div class="form-group">
-                            <input type="text" name="username" id="username" placeholder="Username" class="form-control"
-                                required="">
-                            <i class="ik ik-user"></i>
-                        </div>
-                        <div class="form-group">
-                            <input type="password" name="password" id="password" class="form-control"
-                                placeholder="Password" required="">
-                            <i class="ik ik-lock"></i>
-                        </div>
-
-                        <div class="sign-btn text-center">
-                            <button class="btn btn-theme" type="submit" id="submit">Sign In</button>
-                        </div>
-
-                        </form> -->
+                                <p><a href="index.php">Already have an account?</a></p>
                     </div>
                 </div>
             </div>

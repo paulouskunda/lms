@@ -1,32 +1,31 @@
 <?php
 
-function addNewBooking($db, $customer_id, $brandID, $dateofuse, $dateOfReturn, $paymentPlan, $price, $payment_amount, $size, $quantity, $type, $itemID){
-    if(checkExistingBooking($db, $dateofuse, $brandID)){
-        return "Already_Booked";
-    }else{
+function addNewBooking($db, $customer_id, $brandID, $dateofuse, $dateOfReturn, $paymentPlan, $price,
+ $payment_amount, $size, $quantity, $type, $itemID){
         if($paymentPlan === "full"){
             if($price === $payment_amount){
                 $insertInTracking  = "INSERT INTO payment_tracking ( `customerID`, `brandID`, `size`, `quantity`, `dateOfUse`, `dateOfReturn`, `amountPaid`, `totalBill`, `dateOfPayment`, `statusOfPayment`, `type`) 
                 VALUE('$customer_id', '$brandID', '$size', '$quantity', '$dateofuse', '$dateOfReturn', '$payment_amount', '$price', NOW(), 1, '$type')";
                 if(mysqli_query($db, $insertInTracking)){
                     $last_id = mysqli_insert_id($db);
+            
                     $insertInHistoricalTracking = mysqli_query($db, "INSERT INTO payment_tracking_history (`payment_tracking_id`, `amount_paid`, `date_of_payment`) VALUES ('$last_id', '$payment_amount', NOW())");
                     if($insertInHistoricalTracking){
                         if(updateCounter($db, $size, $quantity, $itemID))
                             return "full_pay";
                         else{
-                            echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                            echo "<script> console.log('installments payment -  here".mysqli_error($db)."'); </script>";
 
-                            return false;
+                            return mysqli_error($db);
                         }
                     }
                     else{
-                        echo "<script> console.log('full payment - tracking ".mysqli_error($db)."'); </script>";
-                        return false;
+                        echo "<script> console.log('full payment - tracking here ".$last_id.mysqli_error($db)."'); </script>";
+                        return mysqli_error($db);
                     }
                 }else{
                     echo "<script> console.log('full payment ".mysqli_error($db)."'); </script>";
-                    return false;
+                    return mysqli_error($db);
                 }
     
             }else{
@@ -43,21 +42,21 @@ function addNewBooking($db, $customer_id, $brandID, $dateofuse, $dateOfReturn, $
                         if(updateCounter($db, $size, $quantity, $itemID))
                             return true;
                         else{
-                            echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                            echo "<script> console.log('installments payment -  maybe".mysqli_error($db)."'); </script>";
 
-                            return false;
+                            return mysqli_error($db);
                          }
 
                     }
                     else{
-                        echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                        echo "<script> console.log('installments payment -  i guess ".mysqli_error($db)."'); </script>";
 
-                        return false;
+                        return mysqli_error($db);
                     }               
                 }else{
-                    echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                    echo "<script> console.log('installments payment -  nah ".mysqli_error($db)."'); </script>";
 
-                    return false;
+                    return mysqli_error($db);
                 }
             }
         }else{
@@ -72,22 +71,22 @@ function addNewBooking($db, $customer_id, $brandID, $dateofuse, $dateOfReturn, $
                     if(updateCounter($db, $size, $quantity, $itemID))
                         return true;
                     else{
-                        echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                        echo "<script> console.log('installments payment -  oh maybe ".mysqli_error($db)."'); </script>";
                         return false;
                     }
 
                 }
                 else{
-                    echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                    echo "<script> console.log('installments payment -   lmao not caught ".mysqli_error($db)."'); </script>";
 
                     return false;
                 }
             }else{
-                echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                echo "<script> console.log('installments payment -  sleeping ".mysqli_error($db)."'); </script>";
                 return false;
             }
         }
-    }
+    
  
 
 }
@@ -110,7 +109,7 @@ function updateBookingPayment($db, $payID, $paidAmount, $actual_price){
             if($insertInHistoricalTracking)
                 return "all_settled";
             else{
-                echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                echo "<script> console.log('installments payment -  internal ".mysqli_error($db)."'); </script>";
                 return false;
             }
         }
@@ -122,7 +121,7 @@ function updateBookingPayment($db, $payID, $paidAmount, $actual_price){
             if($insertInHistoricalTracking)
                 return "balance";
             else{
-                echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+                echo "<script> console.log('installments payment - bypass ".mysqli_error($db)."'); </script>";
                 return false;
             }
         }
@@ -141,7 +140,7 @@ function updateCounter($db, $size, $quantity, $id){
     if($updateTracking)
         return true;
     else{
-        echo "<script> console.log('installments payment - tracking ".mysqli_error($db)."'); </script>";
+        echo "<script> console.log('installments payment - counter ".mysqli_error($db)."'); </script>";
 
         return false;
     }

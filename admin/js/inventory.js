@@ -717,14 +717,19 @@ $('#restockdone').click(function() {
 
     var id = document.getElementById('itemNo').getAttribute("name");
     console.log(id);
-    var restocknumber = parseInt(document.getElementById('restocknumber').value);
+    var restocknumber = parseInt(document.getElementById('remainingquantity').value);
     console.log(restocknumber);
     var flag = parseInt(document.getElementById('flag').value);
-    console.log(flag);
-    const remainingquantity = parseInt(document.getElementById('remainingquantity').value);
-    console.log(remainingquantity);
-    var totalquantity = restocknumber + remainingquantity;
-    console.log(restocknumber + remainingquantity);
+    console.log("k "+flag);
+    const smallnumber = parseInt(document.getElementById('smallnumber').value);
+    console.log(smallnumber);
+    const mediumnumber = parseInt(document.getElementById('mediumnumber').value);
+    console.log(mediumnumber);
+    const largenumber = parseInt(document.getElementById('largenumber').value);
+    console.log(largenumber);
+    
+    var totalquantity =  largenumber + mediumnumber + smallnumber;
+    console.log(totalquantity);
 
     if (totalquantity <= flag) {
         $.toast({
@@ -741,16 +746,18 @@ $('#restockdone').click(function() {
             method: "POST",
             data: {
                 id: id,
-                totalquantity: totalquantity
+                totalquantity: totalquantity,
+                smallquantity: smallnumber,
+                mediumquatity: mediumnumber,
+                largequantity: largenumber
             },
             success: function(data) {
                 if (data === 'successful') {
                     window.location.href = 'inventory.php';
-                }
-                if (data === 'unsuccessful') {
+                }else {
                     $.toast({
                         heading: 'Warning',
-                        text: 'Operation unsuccessful.',
+                        text: 'Operation unsuccessful. '+data,
                         showHideTransition: 'slide',
                         icon: 'warning',
                         loaderBg: '#57c7d4',
@@ -829,11 +836,10 @@ $('#editdone').click(function() {
             success: function(data) {
                 if (data === 'successful') {
                     window.location.href = 'inventory.php';
-                }
-                if (data === 'unsuccessful') {
+                }else {
                     $.toast({
                         heading: 'Warning',
-                        text: 'Operation unsuccessful.',
+                        text: 'Operation unsuccessful. '+data,
                         showHideTransition: 'slide',
                         icon: 'warning',
                         loaderBg: '#57c7d4',

@@ -62,6 +62,7 @@
                         </div>
 
                         </form>
+                        <p>New here? <a href="signup.php">Register</a> today.</p>
                     </div>
                 </div>
             </div>

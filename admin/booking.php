@@ -12,7 +12,7 @@ if(isset($_POST['book_dress'])){
     $customer_id = mysqli_real_escape_string($database, $_POST['customer_id']);
     $brandID = mysqli_real_escape_string($database, $_POST['brandID_']);
     $size = mysqli_real_escape_string($database, $_POST['size']);
-    $quatity = mysqli_real_escape_string($database, $_POST['quatity']);
+    $sizeQu = explode(",", $size);
     $dateofuse = mysqli_real_escape_string($database, $_POST['dateofuse']);
     $paymentPlan = mysqli_real_escape_string($database, $_POST['paymentPlan']);
     $price = mysqli_real_escape_string($database, $_POST['price']);
@@ -20,27 +20,36 @@ if(isset($_POST['book_dress'])){
     $dateofRuturn = mysqli_real_escape_string($database, $_POST['dateOfReturn']);
     $itemID = mysqli_real_escape_string($database, $_POST['itemID']);
     $type = mysqli_real_escape_string($database, $_POST['type']);
+ 
+    $quatity = mysqli_real_escape_string($database, $_POST['quatity']);
 
-    $addUp = addNewBooking($database, $customer_id, $brandID, $dateofuse, $dateofRuturn, $paymentPlan, $price, $payment_amount, $size, $quatity, $type, $itemID);
-    echo "<script> console.log('full payment - tracking ".$addUp."'); </script>";
+    if($sizeQu[1] === 0){
+         echo "<script>alert('This size is out of stock!!')</script>";
+    }else if($quatity > $sizeQu[1]){
+        echo "<script>alert('We only have ".$sizeQu[1]." in stock!!')</script>";
+    }else{
+        $addUp = addNewBooking($database, $customer_id, $brandID, $dateofuse, $dateofRuturn, $paymentPlan, $price, $payment_amount,
+        $sizeQu[0], $quatity, $type, $itemID);
 
 
-    if($addUp === "Already_Booked"){
-        echo "<script>alert('This ".$dateofuse." date is already booked.')</script>";
 
-    }else if($addUp === false || $addUp === 0){
-        echo "<script>alert('We encounter an error.')</script>";
+        // echo "<script>alert('We encounter ".$sizeQu[1]." an error. ".$quatity."')</script>";
 
-    }else if($addUp === "full_pay"){
-        echo "<script>
-             location.href = 'contract.php?cusID=".$customer_id."&ptID=".$_GET['ptID']."';
-        </script>";
+        if($addUp === false || $addUp === 0){
+            echo "<script>alert('We encounter an error. ".$addUp."')</script>";
+
+        }else if($addUp === "full_pay"){
+                echo "<script>
+                    location.href = 'contract.php?cusID=".$customer_id."&ptID=".$_GET['ptID']."';
+                </script>";
+        }
+        else{
+            echo "<script>
+                    location.href = 'single_customer.php?id=".$customer_id."';
+                </script>";
+        }
     }
-    else{
-        echo "<script>
-                location.href = 'single_customer.php?id=".$customer_id."';
-            </script>";
-    }
+
 
 }
 
@@ -248,7 +257,6 @@ $brandNum = mysqli_num_rows($brandResult);
                                                     <select class="form-control" name="type">
                                                         <option>~Select Your Type~</option>
                                                         <option value="Silk">Silk</option>
-                                                        <option value=""></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -262,11 +270,11 @@ $brandNum = mysqli_num_rows($brandResult);
                                                 
                                             <div class="form-group">
                                                     <label for="size">Size</label>
-                                                    <select class="form-control" name="size">
+                                                    <select class="form-control" name="size" onChange="selectSize(this)">
                                                         <option>~Select Your Size~</option>
-                                                        <option value="small">Small ~ Q <?php echo $_GET['s']; ?></option>
-                                                        <option value="medium">Meduim ~ Q <?php echo $_GET['m']; ?></option>
-                                                        <option value="large">Large ~ Q <?php echo $_GET['l']; ?></option>
+                                                        <option value="small,<?php echo $_GET['s']; ?>">Small ~ Q <?php echo $_GET['s']; ?></option>
+                                                        <option value="medium,<?php echo $_GET['m']; ?>">Medium ~ Q <?php echo $_GET['m']; ?></option>
+                                                        <option value="large,<?php echo $_GET['l']; ?>">Large ~ Q <?php echo $_GET['l']; ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -275,11 +283,19 @@ $brandNum = mysqli_num_rows($brandResult);
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="card-body">
                                             <div class="forms-sample">
-                                                <div class="form-group">
-                                                <label for="quantity">Quantity </label>
+                                                <!-- group one -->
+                                                <div class="form-group" >
+                                                <?php 
+                                                  
+                                                    
+                                                        echo '  <label for="quantity">Quantity  </label>
 
-                                                    <input required min="0" max="<?php echo  $_GET['qua'];?>" type="number" name="quatity" class="form-control" />
-                                                </div>  
+                                                        <input  min="0" max="'.$_GET['qua'].'" type="number" name="quatity" class="form-control" />
+                                                   ';
+                                                    
+                                                    ?>
+                                               </div>    
+                                                
 
                                             </div>
                                         </div>
@@ -442,7 +458,22 @@ $brandNum = mysqli_num_rows($brandResult);
             $leaseitemcategory = $('#leaseitemcategory');
             $leaseitem = $('#leaseitem');
             $leasereutrndate = $('#leasereutrndate');
-       
+             
+             function selectSize(select){
+                 if(select.value == 'small' || select.value == 'Small'){
+                    document.getElementById('quantity_small').style.display = "block";
+                    document.getElementById('quantity_medium').style.display = "none";
+                    document.getElementById('quantity_large').style.display = "none";
+                 }else  if(select.value == 'medium' || select.value == 'Medium'){
+                    document.getElementById('quantity_small').style.display = "none";
+                    document.getElementById('quantity_medium').style.display = "block";
+                    document.getElementById('quantity_large').style.display = "none";
+                 }else  if(select.value == 'large' || select.value == 'Large'){
+                    document.getElementById('quantity_small').style.display = "none";
+                    document.getElementById('quantity_medium').style.display = "none";
+                    document.getElementById('quantity_large').style.display = "block";
+                 }
+             }
             </script>
            
 </body>

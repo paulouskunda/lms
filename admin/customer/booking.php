@@ -1,7 +1,7 @@
 <?php
 include './dbConnector.php';
-if (!isset($_SESSION['userID'])) {
-    header("location: logout.php");
+if (!isset($_SESSION['login_user'])) {
+    header("location: ../logout.php");
 }
 
 
@@ -12,7 +12,7 @@ if(isset($_POST['book_dress'])){
     $customer_id = mysqli_real_escape_string($database, $_POST['customer_id']);
     $brandID = mysqli_real_escape_string($database, $_POST['brandID_']);
     $size = mysqli_real_escape_string($database, $_POST['size']);
-    $quatity = mysqli_real_escape_string($database, $_POST['quatity']);
+    $sizeQu = explode(",", $size);
     $dateofuse = mysqli_real_escape_string($database, $_POST['dateofuse']);
     $paymentPlan = mysqli_real_escape_string($database, $_POST['paymentPlan']);
     $price = mysqli_real_escape_string($database, $_POST['price']);
@@ -20,27 +20,36 @@ if(isset($_POST['book_dress'])){
     $dateofRuturn = mysqli_real_escape_string($database, $_POST['dateOfReturn']);
     $itemID = mysqli_real_escape_string($database, $_POST['itemID']);
     $type = mysqli_real_escape_string($database, $_POST['type']);
+ 
+    $quatity = mysqli_real_escape_string($database, $_POST['quatity']);
 
-    $addUp = addNewBooking($database, $customer_id, $brandID, $dateofuse, $dateofRuturn, $paymentPlan, $price, $payment_amount, $size, $quatity, $type, $itemID);
+    if($sizeQu[1] === 0){
+         echo "<script>alert('This size is out of stock!!')</script>";
+    }else if($quatity > $sizeQu[1]){
+        echo "<script>alert('We only have ".$sizeQu[1]." in stock!!')</script>";
+    }else{
+        $addUp = addNewBooking($database, $customer_id, $brandID, $dateofuse, $dateofRuturn, $paymentPlan, $price, $payment_amount,
+        $sizeQu[0], $quatity, $type, $itemID);
 
 
-    if($addUp === "Already_Booked"){
-        echo "<script>alert('This ".$dateofuse." date is already booked.')</script>";
+
+        // echo "<script>alert('We encounter ".$sizeQu[1]." an error. ".$quatity."')</script>";
+
+        if($addUp === false || $addUp === 0){
+            echo "<script>alert('We encounter an error. ".$addUp."')</script>";
+    
+        }else if($addUp === "full_pay"){
+                echo "<script>
+                    location.href = 'dashboard.php?cusID=".$customer_id."&ptID=".$_GET['ptID']."';
+                </script>";
+            }
+            else{
+                echo "<script>
+                        location.href = 'dashboard.php?id=".$customer_id."';
+                    </script>";
+            }
     }
-    echo "<script> console.log('full payment - tracking ".$addUp."'); </script>";
-    // }else if($addUp === false || $addUp === 0){
-    //     echo "<script>alert('We encounter an error.')</script>";
 
-    // }else if($addUp === "full_pay"){
-    //     echo "<script>
-    //          location.href = 'contract.php?cusID=".$customer_id."&ptID=".$_GET['ptID']."';
-    //     </script>";
-    // }
-    // else{
-    //     echo "<script>
-    //             location.href = 'single_customer.php?id=".$customer_id."';
-    //         </script>";
-    // }
 
 }
 
@@ -52,7 +61,6 @@ $getBrand = mysqli_query($database, "SELECT * FROM brand WHERE brandID = '".$_GE
 $getBrandRow = mysqli_fetch_assoc($getBrand);
 $getBrandName = $getBrandRow['brand_name'];
 
-
 // get all brand
 
 $getCat = mysqli_query($database, "SELECT * FROM category WHERE catID = '".$_GET['cat']."'");
@@ -63,13 +71,12 @@ $getCatName = $getCatRow['category_name'];
 //End populate users into table
 
 //Start populate customer combo box
-$selectcustomer = "SELECT `customerID`, `firstname`, `othername`, `lastname`, `ID`, `contact`, `email`, `residentialArea`, `city`, `password`, `isActive` FROM `customer` WHERE customerID = '".$_GET['u']."' AND `isActive` = 1";
+
+$selectcustomer = "SELECT `customerID`, `firstname`, `othername`, `lastname`, `ID`, `contact`, `email`, `residentialArea`, `city`, `password`, `isActive` FROM `customer` WHERE `isActive` = 1";
 
 $customerresult = mysqli_query($database, $selectcustomer);
-if(!$customerresult)
-    echo mysqli_error($database);
-$customernum = mysqli_num_rows($customerresult);
 
+$customernum = mysqli_num_rows($customerresult);
 //End populate customer combo box
 
 //Start populate brand combo box
@@ -91,6 +98,7 @@ $brandNum = mysqli_num_rows($brandResult);
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
     <link rel="stylesheet" href="../plugins/bootstrap/dist/css/bootstrap.min.css">
@@ -109,7 +117,6 @@ $brandNum = mysqli_num_rows($brandResult);
     <link rel="stylesheet" href="../dist/css/theme.min.css">
     <link rel="stylesheet" href="../plugins/sweetalert2-8.13.5/package/dist/sweetalert2.min.css">
     <script src="../src/js/vendor/modernizr-2.8.3.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css"> 
 
 </head>
 
@@ -165,7 +172,23 @@ $brandNum = mysqli_num_rows($brandResult);
                             <div class="nav-item active">
                                 <a href="dashboard.php"><i class="ik ik-bar-chart-2"></i><span>Dashboard</span></a>
                             </div>
-                    
+                            <div class="nav-item has-sub">
+                                <a href="javascript:void(0)"><i class="ik ik-users"></i><span>User Management</a>
+                                <div class="submenu-content">
+                                    <!-- <a href="users.php" class="menu-item">Users</a> -->
+                                    <a href="customers.php" class="menu-item">Customers</a>
+                                    <!-- <a href="#" class="menu-item">Roles</a> -->
+
+                                </div>
+                            </div>
+                            <div class="nav-item has-sub active open">
+                                <a href="#"><i class="ik ik-layers "></i><span>Store Management</span></a>
+                                <div class="submenu-content">
+                                    <a href="inventory.php" class="menu-item">Inventory</a>
+                                    <a href="lease.php" class="menu-item">Lease</a>
+                                    <!-- <a href="#" class="menu-item">Accounting</a> -->
+                                </div>
+                            </div>
                         </nav>
                     </div>
                 </div>
@@ -184,6 +207,7 @@ $brandNum = mysqli_num_rows($brandResult);
                                                     <label for="brand">Select Customer</label>
                                                     <select name="customer_id" id="leasecustomername" class="form-control"
                                                         required>
+                                                        <option value=""></option>
                                                         <?php
                                                     if ($customernum > 0) {
                                                         while ($customerrow = mysqli_fetch_array($customerresult)) {
@@ -233,7 +257,6 @@ $brandNum = mysqli_num_rows($brandResult);
                                                     <select class="form-control" name="type">
                                                         <option>~Select Your Type~</option>
                                                         <option value="Silk">Silk</option>
-                                                        <option value=""></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -247,11 +270,11 @@ $brandNum = mysqli_num_rows($brandResult);
                                                 
                                             <div class="form-group">
                                                     <label for="size">Size</label>
-                                                    <select class="form-control" name="size">
+                                                    <select class="form-control" name="size" onChange="selectSize(this)">
                                                         <option>~Select Your Size~</option>
-                                                        <option value="small">Small ~ Q <?php echo $_GET['s']; ?></option>
-                                                        <option value="medium">Meduim ~ Q <?php echo $_GET['m']; ?></option>
-                                                        <option value="large">Large ~ Q <?php echo $_GET['l']; ?></option>
+                                                        <option value="small,<?php echo $_GET['s']; ?>">Small ~ Q <?php echo $_GET['s']; ?></option>
+                                                        <option value="medium,<?php echo $_GET['m']; ?>">Medium ~ Q <?php echo $_GET['m']; ?></option>
+                                                        <option value="large,<?php echo $_GET['l']; ?>">Large ~ Q <?php echo $_GET['l']; ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -260,11 +283,19 @@ $brandNum = mysqli_num_rows($brandResult);
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="card-body">
                                             <div class="forms-sample">
-                                                <div class="form-group">
-                                                <label for="quantity">Quantity </label>
+                                                <!-- group one -->
+                                                <div class="form-group" >
+                                                <?php 
+                                                  
+                                                    
+                                                        echo '  <label for="quantity">Quantity  </label>
 
-                                                    <input required min="0" max="<?php echo  $_GET['qua'];?>" type="number" name="quatity" class="form-control" />
-                                                </div>  
+                                                        <input  min="0" max="'.$_GET['qua'].'" type="number" name="quatity" class="form-control" />
+                                                   ';
+                                                    
+                                                    ?>
+                                               </div>    
+                                                
 
                                             </div>
                                         </div>
@@ -295,7 +326,22 @@ $brandNum = mysqli_num_rows($brandResult);
                                             </div>
                                         </div>
                                     </div>
-                        
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="card-body">
+                                            <div class="forms-sample">
+                                            
+                                                <div class="form-group">
+                                                    <label for="brand">Payment Plan</label>
+                                                    <select name="paymentPlan" id="leasecustomername" class="form-control"
+                                                        required>
+                                                        <option value=""></option>
+                                                        <option value="installments">Installments</option>
+                                                        <option value="full">Full</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                   <div class="row">
                                     <div class="col-lg-6 col-md-6 col-sm-12">
@@ -313,16 +359,10 @@ $brandNum = mysqli_num_rows($brandResult);
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="card-body">
                                             <div class="forms-sample">
-                                            <label for="brand">Payment Plan</label>
-                                                    <select name="paymentPlan" id="leasecustomername" class="form-control"
-                                                        required>
-                                                        <option value=""></option>
-                                                        <option value="installments">Installments</option>
-                                                        <option value="full">Full</option>
-                                                    </select>
+                                            
                                                 <div class="form-group">
-                                                    <!-- <label for="brand">Payment Amount</label> -->
-                                                    <input value="0" hidden type="text" name="payment_amount"  class="form-control" />
+                                                    <label for="brand">Payment Amount</label>
+                                                    <input type="text" name="payment_amount"  class="form-control" />
 
                                                 </div>
                                             </div>
@@ -365,7 +405,7 @@ $brandNum = mysqli_num_rows($brandResult);
                                         <a href="#"><i class="ik ik-users"></i><span>Account</span></a>
                                     </div> -->
                                     <div class="app-item">
-                                        <a href="logout.php"><i
+                                        <a href="../logout.php"><i
                                                 class="ik ik-power dropdown-icon"></i><span>Logout</span></a>
                                     </div>
                                 </div>
@@ -375,27 +415,34 @@ $brandNum = mysqli_num_rows($brandResult);
                 </div>
             </div>
 
-            <script src="src/js/vendor/jquery-3.3.1.min.js"></script>
+            <script src="../src/js/vendor/jquery-3.3.1.min.js"></script>
             <script>
-            window.jQuery || document.write('<script src="src/js/vendor/jquery-3.3.1.min.js"><\/script>')
+                  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+            <script>
+            window.jQuery || document.write('<script src="../src/js/vendor/jquery-3.3.1.min.js"><\/script>')
             </script>
-            <script src="plugins/popper.js/dist/umd/popper.min.js"></script>
-            <script src="plugins/bootstrap/dist/js/bootstrap.min.js"></script>
-            <script src="plugins/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
-            <script src="plugins/screenfull/dist/screenfull.js"></script>
-            <script src="plugins/datatables.net/js/jquery.dataTables.min.js"></script>
-            <script src="plugins/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-            <script src="plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-            <script src="plugins/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
-            <script src="plugins/jvectormap/jquery-jvectormap.min.js"></script>
-            <script src="plugins/jvectormap/tests/assets/jquery-jvectormap-world-mill-en.js"></script>
-            <script src="plugins/moment/moment.js"></script>
-            <script src="plugins/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js"></script>
-            <script src="js/tables.js"></script>
-            <script src="dist/js/theme.min.js"></script>
-            <script src="plugins/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
-            <script src="plugins/sweetalert2-8.13.5/package/dist/sweetalert2.all.min.js"></script>
-            <script src="plugins/sweetalert2-8.13.5/package/dist/sweetalert2.min.js"></script>
+            <script src="../plugins/popper.js/dist/umd/popper.min.js"></script>
+            <script src="../plugins/bootstrap/dist/js/bootstrap.min.js"></script>
+            <script src="../plugins/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
+            <script src="../plugins/screenfull/dist/screenfull.js"></script>
+            <script src="../plugins/datatables.net/js/jquery.dataTables.min.js"></script>
+            <script src="../plugins/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+            <script src="../plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+            <script src="../plugins/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+            <script src="../plugins/jvectormap/jquery-jvectormap.min.js"></script>
+            <script src="../plugins/jvectormap/tests/assets/jquery-jvectormap-world-mill-en.js"></script>
+            <script src="../plugins/moment/moment.js"></script>
+            <script src="../plugins/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js"></script>
+            <script src="../plugins/d3/dist/d3.min.js"></script>
+            <script src="../plugins/c3/c3.min.js"></script>
+            <script src="../js/tables.js"></script>
+            <script src="../js/widgets.js"></script>
+            <script src="../js/charts.js"></script>
+            <script src="../dist/js/theme.min.js"></script>
+            <script src="../plugins/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
+            <script src="../plugins/sweetalert2-8.13.5/package/dist/sweetalert2.all.min.js"></script>
+            <script src="../plugins/sweetalert2-8.13.5/package/dist/sweetalert2.min.js"></script>
+
 
             <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
             <script>
@@ -418,7 +465,22 @@ $brandNum = mysqli_num_rows($brandResult);
             $leaseitemcategory = $('#leaseitemcategory');
             $leaseitem = $('#leaseitem');
             $leasereutrndate = $('#leasereutrndate');
-       
+             
+             function selectSize(select){
+                 if(select.value == 'small' || select.value == 'Small'){
+                    document.getElementById('quantity_small').style.display = "block";
+                    document.getElementById('quantity_medium').style.display = "none";
+                    document.getElementById('quantity_large').style.display = "none";
+                 }else  if(select.value == 'medium' || select.value == 'Medium'){
+                    document.getElementById('quantity_small').style.display = "none";
+                    document.getElementById('quantity_medium').style.display = "block";
+                    document.getElementById('quantity_large').style.display = "none";
+                 }else  if(select.value == 'large' || select.value == 'Large'){
+                    document.getElementById('quantity_small').style.display = "none";
+                    document.getElementById('quantity_medium').style.display = "none";
+                    document.getElementById('quantity_large').style.display = "block";
+                 }
+             }
             </script>
            
 </body>

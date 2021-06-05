@@ -295,7 +295,7 @@ $categoryNum = mysqli_num_rows($categoryResult);
                                             ?>
                                                 <button type="button" id="<?php echo $row['itemID']; ?>" name="restock"
                                                     data-toggle="modal" data-target="#modal-lg-restock"
-                                                    class="btn btn-danger btn-xs restock">Restock</button>
+                                                    class="btn btn-danger btn-xs restock">Restock </button>
                                                 <?php
                                         }
                                        
